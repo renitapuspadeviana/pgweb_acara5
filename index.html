@@ -38,6 +38,7 @@
 
         // Menambahkan basemap ke dalam peta
         basemap.addTo(map);
+
         //Memanggil data GeoJson dari file toponimi
         //Define layer group
         let toponimi = L.layerGroup();
@@ -80,6 +81,39 @@
 
         toponimi.addTo(map)
 
+        // GeoJSON Polyline Sungai
+        map.createPane('paneSungai');
+        map.getPane("paneSungai").style.zIndex = 400;
+        var sungai = L.geoJSON(null, {
+            pane:'paneSungai',
+            style: function (feature) {
+                return {
+                    color: "blue",
+                    opacity: 1,
+                    weight: 2,
+                };
+            },
+
+            // onEachFeature
+            onEachFeature: function (feature, layer) {
+                layer.on({
+                    mouseover: function (e) {
+                        sungai.bindTooltip(feature.properties.LAYER, {
+                            direction: "auto",
+                            sticky: true,
+                        });
+                    },
+                });
+            },
+
+        });
+
+        $.getJSON("data/sungai.geojson", function (data) {
+            sungai.addData(data); // Menambahkan data ke dalam GeoJSON Polyline Sungai
+            map.addLayer(sungai); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
+        });
+
+
         // GeoJSON Polyline Jalan
         map.createPane('paneJalan');
         map.getPane("paneJalan").style.zIndex = 401;
@@ -110,38 +144,6 @@
         $.getJSON("data/jalan.geojson", function (data) {
             jalan.addData(data); // Menambahkan data ke dalam GeoJSON Polyline Jalan
             map.addLayer(jalan); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
-        });
-
-        // GeoJSON Polyline Sungai
-        map.createPane('paneSungai');
-        map.getPane("paneSungai").style.zIndex = 401;
-        var sungai = L.geoJSON(null, {
-            pane:'paneSungai',
-            style: function (feature) {
-                return {
-                    color: "blue",
-                    opacity: 1,
-                    weight: 2,
-                };
-            },
-
-            // onEachFeature
-            onEachFeature: function (feature, layer) {
-                layer.on({
-                    mouseover: function (e) {
-                        sungai.bindTooltip(feature.properties.LAYER, {
-                            direction: "auto",
-                            sticky: true,
-                        });
-                    },
-                });
-            },
-
-        });
-
-        $.getJSON("data/sungai.geojson", function (data) {
-            sungai.addData(data); // Menambahkan data ke dalam GeoJSON Polyline Sungai
-            map.addLayer(sungai); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
         });
 
         // GeoJSON Polygon Jumlah Penduduk
@@ -186,15 +188,15 @@
                     "Jumlah Penduduk: " + feature.properties.Penduduk;
 
                 layer.on({
+                    click: function(e){
+                        jumlah_penduduk.bindPopup(popup_content);
+                    },
                     mouseover: function (e) {
                         jumlah_penduduk.bindTooltip(feature.properties.WADMKC, {
                             direction: "auto",
                             sticky: true,
                         });
-                    },
-                    click: function (e) {
-                        jumlah_penduduk.bindPopup(popup_content);
-                    },
+                    }
                 });
             },
 
@@ -214,6 +216,7 @@
         var overlayMaps = {
             "Toponimi": toponimi,
             "Jalan": jalan,
+            "Sungai": sungai,
             "Jumlah Penduduk": jumlah_penduduk,
         };
 
