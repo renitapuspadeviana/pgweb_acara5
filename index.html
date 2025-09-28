@@ -112,6 +112,38 @@
             map.addLayer(jalan); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
         });
 
+        // GeoJSON Polyline Sungai
+        map.createPane('paneSungai');
+        map.getPane("paneSungai").style.zIndex = 401;
+        var sungai = L.geoJSON(null, {
+            pane:'paneSungai',
+            style: function (feature) {
+                return {
+                    color: "blue",
+                    opacity: 1,
+                    weight: 2,
+                };
+            },
+
+            // onEachFeature
+            onEachFeature: function (feature, layer) {
+                layer.on({
+                    mouseover: function (e) {
+                        sungai.bindTooltip(feature.properties.LAYER, {
+                            direction: "auto",
+                            sticky: true,
+                        });
+                    },
+                });
+            },
+
+        });
+
+        $.getJSON("data/sungai.geojson", function (data) {
+            sungai.addData(data); // Menambahkan data ke dalam GeoJSON Polyline Sungai
+            map.addLayer(sungai); // Menambahkan GeoJSON Polyline Jalan ke dalam peta
+        });
+
         // GeoJSON Polygon Jumlah Penduduk
         map.createPane('panejumlahPenduduk');
         map.getPane("panejumlahPenduduk").style.zIndex = 301;
